@@ -29,8 +29,22 @@ def getHtml(url) -> requests.Response:
         print('getHtml: request Error')
 
 
+# 处理日期格式
+def parse_date(date_str) -> datetime:
+    """
+    尝试使用不同格式解析日期
+    :param date_str:
+    :return:
+    """
+    date_formats = ['%Y-%m-%d', '%Y', '%Y-%m', '%m', '%m-%d']
+    for fmt in date_formats:
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            continue
+
 # 爬取单个电影信息
-def getMovie(url) -> list:
+def get_movie(url) -> list:
     """
     爬取单个电影的信息（除短评）
     :param url:
@@ -50,8 +64,13 @@ def getMovie(url) -> list:
     director = bs.find('a', rel="v:directedBy").text
 
     writer_span = bs.find('span', string='编剧')
-    writers_set = writer_span.find_next('span', class_='attrs').find_all('a')
-    scriptwriters = [writer.get_text() for writer in writers_set]
+    if writer_span:
+        writers_set = writer_span.find_next('span', class_='attrs').find_all('a')
+        scriptwriters = [writer.get_text() for writer in writers_set]
+    else:
+        # 纪录片没有编剧，需要判断否则抛出 AttributeError
+        print("There is no writer")
+        scriptwriters = []
     # 转换为字符串列表
     # print(scriptwriters)
 
@@ -76,7 +95,7 @@ def getMovie(url) -> list:
 
     date_set = bs.find_all('span', property='v:initialReleaseDate')
     dates_locations = [date.get_text() for date in date_set]
-    dates = [] # 初始化 dates 空列表
+    dates = []  # 初始化 dates 空列表
     for item in dates_locations:
         # 找到左右括号位置
         left_paren_index = item.find('(')
@@ -84,7 +103,7 @@ def getMovie(url) -> list:
 
         # 提取日期字符串并装换为 datetime 对象
         date_str = item[:left_paren_index]
-        date = datetime.strptime(date_str, '%Y-%m-%d')
+        date = parse_date(date_str)
 
         # 提取地点字符串
         location = item[left_paren_index + 1:right_paren_index]
@@ -109,12 +128,40 @@ def getMovie(url) -> list:
     stars = [star_str[0:-1] for star_str in stars_str]
     # print(stars)
 
-    return [name, year, director, scriptwriters, actors, types, regions, languages, dates, dates, stars]
+    return [name, year, director, scriptwriters, actors, types, regions, languages, dates, rating, rating_people, stars]
 
 # TODO 爬取所有电影信息并保存到 data.csv
+def get_all_movie_urls() -> list:
+    """
+    从分类界面(每页25部)获取每部电影链接, 汇总返回 list
+    :return: list
+    """
+    movie_urls = []  # 创建空列表存储所有电影链接
+    top250url = 'https://movie.douban.com/top250'
+    # 不断爬取单页信息知道最后一页
+    while top250url:
+        # 爬取单页所有电影信息
+        # 下载网页并解析
+        res = getHtml(top250url)
+        bs = BeautifulSoup(res.text, 'html.parser')
 
+        # 找到所有电影链接并添加到列表
+        movies_set = bs.find_all('div', class_='pic')
+        movie_urls.extend([movie.find('a')['href'] for movie in movies_set])
+
+        # 如果有下一页就切换到下一页
+        top250url = bs.find('link', rel='next')
+        if top250url:
+            top250url = 'https://movie.douban.com/top250' + top250url['href']
+
+    return movie_urls
+
+
+movieUrls = get_all_movie_urls()
+# print(len(movieUrls))
 
 test_urls = [
+    'https://movie.douban.com/subject/26430107/',
     'https://movie.douban.com/subject/1292052/',
     'https://movie.douban.com/subject/1291546/',
     'https://movie.douban.com/subject/1292720/',
@@ -122,9 +169,22 @@ test_urls = [
     'https://movie.douban.com/subject/1291561/',
     'https://movie.douban.com/subject/1292063/'
 ]
-MovieInfo = []
-for test_url in test_urls:
-    MovieInfo.append(getMovie(test_url))
-print(MovieInfo)
+# movieInfo = []
+# for test_url in test_urls:
+#     movieInfo.append(get_movie(test_url))
+# print(movieInfo)
+
+movieInfo = []
+num = 0
+for url in movieUrls:
+    movieInfo.append(get_movie(url))
+    num += 1
+    print(f"Progress:{num}/250")
+
+head = ['name', 'year', 'director', 'scriptwriters', 'actors', 'types', 'regions', 'languages', 'dates', 'rating',
+        'rating_people', 'stars']
+movieInfoDf = pd.DataFrame(movieInfo, columns=head)
+movieInfoDf.to_csv('MovieInfo.csv', index=False, encoding='utf-8-sig')
+print(movieInfoDf.head())
 
 # getMovie(test_urls[0])
