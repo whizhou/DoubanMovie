@@ -29,7 +29,7 @@ def getHtml(url) -> requests.Response:
         print('getHtml: request Error')
 
 
-# TODO 爬取单个电影信息
+# 爬取单个电影信息
 def getMovie(url) -> list:
     """
     爬取单个电影的信息（除短评）
@@ -42,8 +42,8 @@ def getMovie(url) -> list:
 
     name = bs.find('span', property='v:itemreviewed').text
 
-    year = bs.find('span', class_='year').text
-    year = int(year[1:-1])  # str2num '(1999)' -> 1999
+    year_str = bs.find('span', class_='year').text
+    year = int(year_str[1:-1])  # str2num '(1999)' -> 1999
     # print("%s (%d)" % (name, year))
 
     # info = bs.find_all('div', id='info')
@@ -93,6 +93,23 @@ def getMovie(url) -> list:
         dates.append([date, location])
     # print(dates)
 
+    # 爬取首个片长信息
+    length_str = bs.find('span', property='v:runtime').text
+    length = int(length_str[0:length_str.find('分钟')])
+    # print(length)
+
+    rating_str = bs.find('strong', class_='ll rating_num', property='v:average').text
+    rating = float(rating_str)
+    rating_people_str = bs.find('span', property='v:votes').text
+    rating_people = int(rating_people_str)
+    # print(f"评分:{rating}, {rating_people}人评价")
+
+    ratings_on_weight = bs.find('div', class_='ratings-on-weight').find_all('span', class_='rating_per')
+    stars_str = [star.get_text() for star in ratings_on_weight]
+    stars = [star_str[0:-1] for star_str in stars_str]
+    # print(stars)
+
+    return [name, year, director, scriptwriters, actors, types, regions, languages, dates, dates, stars]
 
 # TODO 爬取所有电影信息并保存到 data.csv
 
@@ -105,7 +122,9 @@ test_urls = [
     'https://movie.douban.com/subject/1291561/',
     'https://movie.douban.com/subject/1292063/'
 ]
+MovieInfo = []
 for test_url in test_urls:
-    getMovie(test_url)
+    MovieInfo.append(getMovie(test_url))
+print(MovieInfo)
 
 # getMovie(test_urls[0])
