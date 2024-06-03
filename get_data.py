@@ -1,4 +1,4 @@
-# 使用requests库爬取电影信息
+# 使用requests库爬取电影信息并保存到 MovieInfo_str.csv
 
 import requests
 from bs4 import BeautifulSoup
@@ -20,13 +20,15 @@ def getHtml(url) -> requests.Response:
         'cache-control': 'max-age=0',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
     }
-    try:
-        res = requests.get(url, headers=head, timeout=30)
-        res.raise_for_status()
-        res.encoding = res.apparent_encoding
-        return res
-    except:
-        print('getHtml: request Error')
+    while 1:
+        try:
+            res = requests.get(url, headers=head, timeout=30)
+            res.raise_for_status()
+            res.encoding = res.apparent_encoding
+            return res
+        except:
+            print('getHtml: request Error')
+            continue
 
 
 # 处理日期格式
@@ -43,10 +45,11 @@ def parse_date(date_str) -> datetime:
         except ValueError:
             continue
 
+
 # 爬取单个电影信息
 def get_movie(url) -> list:
     """
-    爬取单个电影的信息（除短评）
+    爬取单个电影的信息(除短评), 预处理成合适的字符串, 返回字符串列表
     :param url:
     :return:
     """
@@ -57,7 +60,7 @@ def get_movie(url) -> list:
     name = bs.find('span', property='v:itemreviewed').text
 
     year_str = bs.find('span', class_='year').text
-    year = int(year_str[1:-1])  # str2num '(1999)' -> 1999
+    # year = int(year_str[1:-1])  # str2num '(1999)' -> 1999
     # print("%s (%d)" % (name, year))
 
     # info = bs.find_all('div', id='info')
@@ -66,69 +69,71 @@ def get_movie(url) -> list:
     writer_span = bs.find('span', string='编剧')
     if writer_span:
         writers_set = writer_span.find_next('span', class_='attrs').find_all('a')
-        scriptwriters = [writer.get_text() for writer in writers_set]
+        writers_str = '/'.join([writer.get_text() for writer in writers_set])
     else:
         # 纪录片没有编剧，需要判断否则抛出 AttributeError
         print("There is no writer")
-        scriptwriters = []
-    # 转换为字符串列表
+        writers_str = ''
+    # 转换为字符串
     # print(scriptwriters)
 
     actor_set = bs.find_all('a', rel='v:starring')
-    actors = [actor.get_text() for actor in actor_set]
-    # 转换为字符串列表
+    actors_str = '/'.join([actor.get_text() for actor in actor_set])
+    # 转换为字符串
     # print(actors)
 
     type_set = bs.find_all('span', property='v:genre')
-    types = [movie_type.get_text() for movie_type in type_set]
+    types_str = '/'.join([movie_type.get_text() for movie_type in type_set])
     # print(types)
 
     region_span = bs.find('span', string='制片国家/地区:')
     region_set = region_span.next_sibling
-    regions = [region.strip() for region in region_set.split('/')]
+    regions_str = '/'.join([region.strip() for region in region_set.split('/')])
     # print(regions)
 
     language_span = bs.find('span', string='语言:')
-    language_set = language_span.next_sibling
-    languages = [language.strip() for language in language_set.split('/')]
+    language_str = language_span.next_sibling
+    # languages = [language.strip() for language in language_set.split('/')]
     # print(languages)
 
     date_set = bs.find_all('span', property='v:initialReleaseDate')
-    dates_locations = [date.get_text() for date in date_set]
-    dates = []  # 初始化 dates 空列表
-    for item in dates_locations:
-        # 找到左右括号位置
-        left_paren_index = item.find('(')
-        right_paren_index = item.find(')')
-
-        # 提取日期字符串并装换为 datetime 对象
-        date_str = item[:left_paren_index]
-        date = parse_date(date_str)
-
-        # 提取地点字符串
-        location = item[left_paren_index + 1:right_paren_index]
-
-        # 添加到 dates 嵌套列表
-        dates.append([date, location])
+    dates_locations_str = '/'.join([date.get_text() for date in date_set])
+    # dates = []  # 初始化 dates 空列表
+    # for item in dates_locations:
+    #     # 找到左右括号位置
+    #     left_paren_index = item.find('(')
+    #     right_paren_index = item.find(')')
+    #
+    #     # 提取日期字符串并装换为 datetime 对象
+    #     date_str = item[:left_paren_index]
+    #     date = parse_date(date_str)
+    #
+    #     # 提取地点字符串
+    #     location = item[left_paren_index + 1:right_paren_index]
+    #
+    #     # 添加到 dates 嵌套列表
+    #     dates.append([date, location])
     # print(dates)
 
     # 爬取首个片长信息
     length_str = bs.find('span', property='v:runtime').text
-    length = int(length_str[0:length_str.find('分钟')])
+    # length = int(length_str[0:length_str.find('分钟')])
     # print(length)
 
     rating_str = bs.find('strong', class_='ll rating_num', property='v:average').text
-    rating = float(rating_str)
+    # rating = float(rating_str)
     rating_people_str = bs.find('span', property='v:votes').text
-    rating_people = int(rating_people_str)
+    # rating_people = int(rating_people_str)
     # print(f"评分:{rating}, {rating_people}人评价")
 
     ratings_on_weight = bs.find('div', class_='ratings-on-weight').find_all('span', class_='rating_per')
-    stars_str = [star.get_text() for star in ratings_on_weight]
-    stars = [star_str[0:-1] for star_str in stars_str]
+    stars_str = '/'.join([star.get_text() for star in ratings_on_weight])
+    # stars = [star_str[0:-1] for star_str in stars_str]
     # print(stars)
 
-    return [name, year, director, scriptwriters, actors, types, regions, languages, dates, rating, rating_people, stars]
+    return [name, year_str, director, writers_str, actors_str, types_str, regions_str, language_str,
+            dates_locations_str, rating_str, rating_people_str, stars_str]
+
 
 # TODO 爬取所有电影信息并保存到 data.csv
 def get_all_movie_urls() -> list:
@@ -181,10 +186,10 @@ for url in movieUrls:
     num += 1
     print(f"Progress:{num}/250")
 
-head = ['name', 'year', 'director', 'scriptwriters', 'actors', 'types', 'regions', 'languages', 'dates', 'rating',
+head = ['name', 'year', 'director', 'writers', 'actors', 'types', 'regions', 'languages', 'dates', 'rating',
         'rating_people', 'stars']
 movieInfoDf = pd.DataFrame(movieInfo, columns=head)
-movieInfoDf.to_csv('MovieInfo.csv', index=False, encoding='utf-8-sig')
+movieInfoDf.to_csv('MovieInfo_str.csv', index=False, encoding='utf-8-sig')
 print(movieInfoDf.head())
 
 # getMovie(test_urls[0])
