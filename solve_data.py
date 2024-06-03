@@ -111,10 +111,10 @@ if data['rating_people'].hasnans:
     print('rating_people lose:', data['rating_people'][data['rating_people'].isna()].index)
     data['rating_people'] = data['rating_people'].map(lambda x: 0 if pd.isna(x) else x)
 data['rating_people'] = data['rating_people'].map(lambda x: int(x))
-print(data['rating_people'].head())
+# print(data['rating_people'].head())
 
 if data['stars'].hasnans:
     print('stars lose:', data['stars'][data['stars'].isna()].index)
     data['stars'] = data['stars'].map(lambda x: '' if pd.isna(x) else x)
 data['stars'] = data['stars'].map(lambda x: [float(star[:-1]) for star in x.split('/')])
-print(data['stars'].head())
+# print(data['stars'].head())
