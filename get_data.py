@@ -132,7 +132,7 @@ def get_movie(url) -> list:
     # print(stars)
 
     return [name, year_str, director, writers_str, actors_str, types_str, regions_str, language_str,
-            dates_locations_str, rating_str, rating_people_str, stars_str]
+            dates_locations_str, length_str, rating_str, rating_people_str, stars_str]
 
 
 # TODO 爬取所有电影信息并保存到 data.csv
@@ -186,9 +186,9 @@ for url in movieUrls:
     num += 1
     print(f"Progress:{num}/250")
 
-head = ['name', 'year', 'director', 'writers', 'actors', 'types', 'regions', 'languages', 'dates', 'rating',
+head = ['name', 'year', 'director', 'writers', 'actors', 'types', 'regions', 'languages', 'dates', 'length', 'rating',
         'rating_people', 'stars']
-movieInfoDf = pd.DataFrame(movieInfo, columns=head)
+movieInfoDf = pd.DataFrame(movieInfo, columns=head, dtype=str)
 movieInfoDf.to_csv('MovieInfo_str.csv', index=False, encoding='utf-8-sig')
 print(movieInfoDf.head())
 
