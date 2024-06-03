@@ -31,21 +31,6 @@ def getHtml(url) -> requests.Response:
             continue
 
 
-# 处理日期格式
-def parse_date(date_str) -> datetime:
-    """
-    尝试使用不同格式解析日期
-    :param date_str:
-    :return:
-    """
-    date_formats = ['%Y-%m-%d', '%Y', '%Y-%m', '%m', '%m-%d']
-    for fmt in date_formats:
-        try:
-            return datetime.strptime(date_str, fmt)
-        except ValueError:
-            continue
-
-
 # 爬取单个电影信息
 def get_movie(url) -> list:
     """
@@ -60,10 +45,7 @@ def get_movie(url) -> list:
     name = bs.find('span', property='v:itemreviewed').text
 
     year_str = bs.find('span', class_='year').text
-    # year = int(year_str[1:-1])  # str2num '(1999)' -> 1999
-    # print("%s (%d)" % (name, year))
 
-    # info = bs.find_all('div', id='info')
     director = bs.find('a', rel="v:directedBy").text
 
     writer_span = bs.find('span', string='编剧')
@@ -75,61 +57,33 @@ def get_movie(url) -> list:
         print("There is no writer")
         writers_str = ''
     # 转换为字符串
-    # print(scriptwriters)
 
     actor_set = bs.find_all('a', rel='v:starring')
     actors_str = '/'.join([actor.get_text() for actor in actor_set])
     # 转换为字符串
-    # print(actors)
 
     type_set = bs.find_all('span', property='v:genre')
     types_str = '/'.join([movie_type.get_text() for movie_type in type_set])
-    # print(types)
 
     region_span = bs.find('span', string='制片国家/地区:')
     region_set = region_span.next_sibling
     regions_str = '/'.join([region.strip() for region in region_set.split('/')])
-    # print(regions)
 
     language_span = bs.find('span', string='语言:')
     language_str = language_span.next_sibling
-    # languages = [language.strip() for language in language_set.split('/')]
-    # print(languages)
 
     date_set = bs.find_all('span', property='v:initialReleaseDate')
     dates_locations_str = '/'.join([date.get_text() for date in date_set])
-    # dates = []  # 初始化 dates 空列表
-    # for item in dates_locations:
-    #     # 找到左右括号位置
-    #     left_paren_index = item.find('(')
-    #     right_paren_index = item.find(')')
-    #
-    #     # 提取日期字符串并装换为 datetime 对象
-    #     date_str = item[:left_paren_index]
-    #     date = parse_date(date_str)
-    #
-    #     # 提取地点字符串
-    #     location = item[left_paren_index + 1:right_paren_index]
-    #
-    #     # 添加到 dates 嵌套列表
-    #     dates.append([date, location])
-    # print(dates)
 
     # 爬取首个片长信息
     length_str = bs.find('span', property='v:runtime').text
-    # length = int(length_str[0:length_str.find('分钟')])
-    # print(length)
 
     rating_str = bs.find('strong', class_='ll rating_num', property='v:average').text
     # rating = float(rating_str)
     rating_people_str = bs.find('span', property='v:votes').text
-    # rating_people = int(rating_people_str)
-    # print(f"评分:{rating}, {rating_people}人评价")
 
     ratings_on_weight = bs.find('div', class_='ratings-on-weight').find_all('span', class_='rating_per')
     stars_str = '/'.join([star.get_text() for star in ratings_on_weight])
-    # stars = [star_str[0:-1] for star_str in stars_str]
-    # print(stars)
 
     return [name, year_str, director, writers_str, actors_str, types_str, regions_str, language_str,
             dates_locations_str, length_str, rating_str, rating_people_str, stars_str]
@@ -191,5 +145,3 @@ head = ['name', 'year', 'director', 'writers', 'actors', 'types', 'regions', 'la
 movieInfoDf = pd.DataFrame(movieInfo, columns=head, dtype=str)
 movieInfoDf.to_csv('MovieInfo_str.csv', index=False, encoding='utf-8-sig')
 print(movieInfoDf.head())
-
-# getMovie(test_urls[0])
