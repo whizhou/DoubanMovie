@@ -2,9 +2,7 @@
 
 import requests
 from bs4 import BeautifulSoup
-import numpy as np
 import pandas as pd
-from datetime import datetime
 
 
 # 下载网页
