@@ -3,6 +3,8 @@
 import pandas as pd
 import solve_data
 import fund_analyze
+import corr_analyze
+import adv_analyze
 
 
 # 基本信息分析
@@ -17,16 +19,16 @@ def fund_analysis(data: pd.DataFrame) -> None:
     print(data.describe())
 
     # (2) 制片地区分布
-    found_analyze.region_analyze(data)
+    fund_analyze.region_analyze(data)
 
     # (3) 类型分布
-    found_analyze.type_analyze(data)
+    fund_analyze.type_analyze(data)
 
     # (4) 影片数量前10的导演 & 影片平均评分前20的导演
-    found_analyze.director_analyze(data)
+    fund_analyze.director_analyze(data)
 
     # (5) 影片数量前10的演员 & 影片平均评分前20的演员
-    found_analyze.actor_analyze(data)
+    fund_analyze.actor_analyze(data)
 
 
 # 关联性分析
@@ -37,7 +39,20 @@ def corr_analysis(data: pd.DataFrame) -> None:
     """
     print("Correlation Analyzing...")
 
+    # (1) 上映年份-影片数量
+    # corr_analyze.year_movies(data)
 
+    # (2) 类型-评分-评分人数 综合分析
+    corr_analyze.types_rating_people(data)
+
+
+# 进阶分析
+def adv_analysis(data: pd.DataFrame) -> None:
+    """
+    :param data:
+    :return:
+    """
+    print("Advance Analyzing...")
 
 
 # data = pd.read_csv('MovieInfo_str.csv', dtype=str)
@@ -50,4 +65,6 @@ print(data.head())
 
 # fund_analysis(data)
 
-corr_analysis(data)
+# corr_analysis(data)
+
+adv_analysis(data)
