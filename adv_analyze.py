@@ -7,7 +7,7 @@ import wordcloud as wc
 import jieba
 
 # 设置中文字体
-font_path = 'E:\PycharmProjects\DoubanMovie\SimHei.ttf'  # 替换为实际字体文件的路径
+font_path = r'E:\PycharmProjects\DoubanMovie\SimHei.ttf'  # 替换为实际字体文件的路径
 font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.sans-serif'] = [font_prop.get_name()]
 plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
@@ -119,19 +119,27 @@ def wordcloud(filename):
     with open(filename, encoding='utf-8') as f:
         text = f.read()
 
+    # 加载中文停词表
+    with open(r'E:\PycharmProjects\DoubanMovie\stop_words.txt', encoding='utf-8') as f:
+        stop_words = f.read().splitlines()
+
+    # 手动扩展停词表
+    stop_words.extend(['电影', '演员', '真的', '确实', '更是', '这部', '这是', '一部'])
+
+    # 分词并过滤
+    word_list = jieba.cut(text)
+    words = [word for word in word_list if len(word) > 1 and word not in stop_words]
+    # print(words)
+
     # 配置词云对象参数
     cl = wc.WordCloud(width=1000, height=700,
                       font_path=font_path,
-                      repeat=False)
+                      repeat=True)
 
-    # 加载词云文体/词频
-    word_list = jieba.cut(text)
-    words = [word for word in word_list if len(word) > 1]
-    print(words)
     cl.generate('/'.join(words))
 
     # 输出词云文件
-    cl.to_file('try_ciyun.png')
+    cl.to_file(f'Movie{filename[0]}_ciyun.png')
 
     # 显示词云图
     plt.figure()
