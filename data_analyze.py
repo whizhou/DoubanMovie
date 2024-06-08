@@ -184,7 +184,79 @@ def type_analyze(data: pd.DataFrame) -> None:
 # 影片数量前10的导演 & 影片平均评分前20的导演
 def director_analyze(data: pd.DataFrame) -> None:
     """
+    统计影片数量前10的导演 & 影片平均评分前20的导演
     :param data:
     :return: None
     """
     print("Director Analyzing...")
+
+    # 预览数据格式
+    print(data['director'])
+
+    """
+    统计影片数量前10的导演及其影片和影片评分
+    """
+    # 统计导演影片数量并降序排列
+    director_group = data.groupby('director')  # 按照导演分组
+    director_count = director_group.size().sort_values(ascending=False)
+
+    # 计算每个导演的平均评分
+    director_avg_rating = director_group['rating'].agg(['mean', 'count'])
+    print(director_avg_rating.sort_values(by='count', ascending=False).head(18))
+
+    # 获取影片数量前十的导演
+    top_directors = director_count.head(18).index
+
+    # 筛选出对应导演的影片
+    top_directors_movies = data[data['director'].isin(top_directors)]
+
+    # 按导演分组并获取每个导演的影片列表
+    movies_list = top_directors_movies.groupby('director')['name'].apply(list).reindex(top_directors)
+
+    # 设置列宽度以完整显示列表
+    pd.set_option('display.max_colwidth', None)
+    print(movies_list)
+
+    """
+    统计影片平均评分前20的导演及其影片数
+    """
+    # 对评分排序,获取前20名导演
+    top_directors_avg_rating = director_avg_rating.sort_values(by='mean', ascending=False)
+
+    print(top_directors_avg_rating.head(20))
+
+
+# 影片数量前10的演员 & 影片平均评分前20的演员
+def actor_analyze(data: pd.DataFrame) -> None:
+    """
+    统计影片数量前10的演员 & 影片平均评分前20的演员
+    :param data:
+    :return: None
+    """
+    print("Actor Analyzing...")
+
+    # 预览数据格式
+    print(data['actors'])
+
+    # 进行数据拆分和分组,保留 name, actors, rating 数据
+    actor_list = []
+    # for actors, rating in zip(data['actors'], data['rating']):
+    #     actor_list.extend([[actor, rating] for actor in actors])
+    for index, row in data.iterrows():
+        actor_list.extend([[row['name'], actor, row['rating']] for actor in row['actors']])
+    actor_group = pd.DataFrame(actor_list, columns=['name', 'actor', 'rating']).groupby('actor')
+
+    """
+    统计影片数量前10的演员并输出其影片平均评分
+    """
+    # 计算每个演员参演电影的平均评分
+    actor_avg_rating = actor_group['rating'].agg(['mean', 'count'])
+    print(actor_avg_rating.sort_values(by='count', ascending=False).head(12))
+
+    """
+    统计影片平均评分前20的演员
+    """
+    # 对评分排序,获取前20名演员
+    actor_avg_rating_sorted = actor_avg_rating.sort_values(by='mean', ascending=False)
+
+    print(actor_avg_rating_sorted.head(20))

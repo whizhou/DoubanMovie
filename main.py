@@ -15,13 +15,16 @@ def found_analysis(data: pd.DataFrame) -> None:
     print(data.describe())
 
     # (2) 制片地区分布
-    data_analyze.region_analyze(data)
+    # data_analyze.region_analyze(data)
 
     # (3) 类型分布
-    data_analyze.type_analyze(data)
+    # data_analyze.type_analyze(data)
 
     # (4) 影片数量前10的导演 & 影片平均评分前20的导演
     data_analyze.director_analyze(data)
+
+    # (5) 影片数量前10的演员 & 影片平均评分前20的演员
+    # data_analyze.actor_analyze(data)
 
 
 # data = pd.read_csv('MovieInfo_str.csv', dtype=str)

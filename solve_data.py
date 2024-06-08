@@ -57,8 +57,8 @@ def data_washing() -> pd.DataFrame:
     # print(data.head())
 
     # 统计每列缺失值个数
-    # columns_null_num = data.isnull().sum()
-    # print(columns_null_num)
+    columns_null_num = data.isnull().sum()
+    print(columns_null_num)
 
     if data['name'].hasnans:
         # 输出 NaN 值的 index
@@ -79,6 +79,12 @@ def data_washing() -> pd.DataFrame:
         data['writers'] = data['writers'].map(lambda x: '' if pd.isna(x) else x)
     data['writers'] = data['writers'].map(lambda x: [writer.strip() for writer in x.split('/')])
     # print(data['writers'])
+
+    if data['actors'].hasnans:
+        # 输出 NaN 值的 index
+        print('writer lose:', data['actors'][data['actors'].isna()].index)
+        data['actors'] = data['actors'].map(lambda x: '' if pd.isna(x) else x)
+    data['actors'] = data['actors'].map(lambda x: [writer.strip() for writer in x.split('/')])
 
     if data['types'].hasnans:
         print('type lose:', data['types'][data['types'].isna()].index)
