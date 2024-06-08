@@ -54,6 +54,9 @@ def adv_analysis(data: pd.DataFrame) -> None:
     """
     print("Advance Analyzing...")
 
+    # (1) 导演-编剧 & 导演-演员的合作关系
+    adv_analyze.collaboration(data)
+
 
 # data = pd.read_csv('MovieInfo_str.csv', dtype=str)
 data = solve_data.data_washing()
