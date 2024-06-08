@@ -2,7 +2,7 @@
 
 import pandas as pd
 import solve_data
-import data_analyze
+import found_analyze
 
 
 # 基本信息分析
@@ -15,16 +15,25 @@ def found_analysis(data: pd.DataFrame) -> None:
     print(data.describe())
 
     # (2) 制片地区分布
-    # data_analyze.region_analyze(data)
+    # found_analyze.region_analyze(data)
 
     # (3) 类型分布
-    # data_analyze.type_analyze(data)
+    # found_analyze.type_analyze(data)
 
     # (4) 影片数量前10的导演 & 影片平均评分前20的导演
-    data_analyze.director_analyze(data)
+    found_analyze.director_analyze(data)
 
     # (5) 影片数量前10的演员 & 影片平均评分前20的演员
-    # data_analyze.actor_analyze(data)
+    # found_analyze.actor_analyze(data)
+
+
+# 关联性分析
+def corr_analysis(data: pd.DataFrame) -> None:
+    """
+    :param data:
+    :return:
+    """
+    print("Correlation Analyzing...")
 
 
 # data = pd.read_csv('MovieInfo_str.csv', dtype=str)
@@ -36,3 +45,5 @@ pd.set_option('display.max_columns', None)  # 设置显示全部列
 print(data.head())
 
 found_analysis(data)
+
+corr_analysis(data)
