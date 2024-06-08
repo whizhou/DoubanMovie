@@ -52,8 +52,13 @@ def data_washing() -> pd.DataFrame:
     data = pd.read_csv('MovieInfo_str.csv', dtype=str)
     # print(data.head())
 
-    # for item in data.loc[0]:
-    #     print(f"{type(item)}: {item}")
+    # 预览数据
+    # pd.set_option('display.max_columns', None)  # 设置显示全部列
+    # print(data.head())
+
+    # 统计每列缺失值个数
+    # columns_null_num = data.isnull().sum()
+    # print(columns_null_num)
 
     if data['name'].hasnans:
         # 输出 NaN 值的 index
