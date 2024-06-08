@@ -64,8 +64,8 @@ def get_movie(url) -> list:
     types_str = '/'.join([movie_type.get_text() for movie_type in type_set])
 
     region_span = bs.find('span', string='制片国家/地区:')
-    region_set = region_span.next_sibling
-    regions_str = '/'.join([region.strip() for region in region_set.split('/')])
+    regions_str = region_span.next_sibling
+    # regions_str = '/'.join([region.strip() for region in region_set.split('/')])
 
     language_span = bs.find('span', string='语言:')
     language_str = language_span.next_sibling

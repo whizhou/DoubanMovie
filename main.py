@@ -70,8 +70,8 @@ print(data.info(verbose=False))
 pd.set_option('display.max_columns', None)  # 设置显示全部列
 print(data.head())
 
-# fund_analysis(data)
+fund_analysis(data)
 
-# corr_analysis(data)
+corr_analysis(data)
 
 adv_analysis(data)
