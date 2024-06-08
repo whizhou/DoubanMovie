@@ -24,7 +24,7 @@ def getHtml(url) -> requests.Response:
             res.raise_for_status()
             res.encoding = res.apparent_encoding
             return res
-        except:
+        except TimeoutError:
             print('getHtml: request Error')
             continue
 
@@ -87,7 +87,7 @@ def get_movie(url) -> list:
             dates_locations_str, length_str, rating_str, rating_people_str, stars_str]
 
 
-# TODO 爬取所有电影信息并保存到 data.csv
+# 爬取所有电影信息并保存到 data.csv
 def get_all_movie_urls() -> list:
     """
     从分类界面(每页25部)获取每部电影链接, 汇总返回 list
@@ -95,7 +95,7 @@ def get_all_movie_urls() -> list:
     """
     movie_urls = []  # 创建空列表存储所有电影链接
     top250url = 'https://movie.douban.com/top250'
-    # 不断爬取单页信息知道最后一页
+    # 不断爬取单页信息直到最后一页
     while top250url:
         # 爬取单页所有电影信息
         # 下载网页并解析

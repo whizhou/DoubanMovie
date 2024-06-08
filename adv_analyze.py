@@ -3,9 +3,11 @@ import pandas as pd
 import networkx as nx
 from matplotlib import pyplot as plt
 import matplotlib.font_manager as fm
+import wordcloud as wc
+import jieba
 
 # 设置中文字体
-font_path = 'SimHei.ttf'  # 替换为实际字体文件的路径
+font_path = 'E:\PycharmProjects\DoubanMovie\SimHei.ttf'  # 替换为实际字体文件的路径
 font_prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.sans-serif'] = [font_prop.get_name()]
 plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
@@ -63,6 +65,7 @@ def collaboration(data: pd.DataFrame):
 
     # 显示图标
     plt.title("导演-编剧合作关系网络图")
+    plt.axis('off')
     plt.show()
 
     """
@@ -107,4 +110,31 @@ def collaboration(data: pd.DataFrame):
 
     # 显示图标
     plt.title("导演-演员合作关系网络图")
+    plt.axis('off')
+    plt.show()
+
+
+# 词云图
+def wordcloud(filename):
+    with open(filename, encoding='utf-8') as f:
+        text = f.read()
+
+    # 配置词云对象参数
+    cl = wc.WordCloud(width=1000, height=700,
+                      font_path=font_path,
+                      repeat=False)
+
+    # 加载词云文体/词频
+    word_list = jieba.cut(text)
+    words = [word for word in word_list if len(word) > 1]
+    print(words)
+    cl.generate('/'.join(words))
+
+    # 输出词云文件
+    cl.to_file('try_ciyun.png')
+
+    # 显示词云图
+    plt.figure()
+    plt.imshow(cl)
+    plt.axis('off')
     plt.show()

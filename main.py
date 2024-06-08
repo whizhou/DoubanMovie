@@ -55,7 +55,11 @@ def adv_analysis(data: pd.DataFrame) -> None:
     print("Advance Analyzing...")
 
     # (1) 导演-编剧 & 导演-演员的合作关系
-    adv_analyze.collaboration(data)
+    # adv_analyze.collaboration(data)
+
+    # (2) 词云图分析
+    adv_analyze.wordcloud('1.txt')
+    adv_analyze.wordcloud('2.txt')
 
 
 # data = pd.read_csv('MovieInfo_str.csv', dtype=str)
@@ -66,8 +70,8 @@ print(data.info(verbose=False))
 pd.set_option('display.max_columns', None)  # 设置显示全部列
 print(data.head())
 
-fund_analysis(data)
+# fund_analysis(data)
 
-corr_analysis(data)
+# corr_analysis(data)
 
 adv_analysis(data)
