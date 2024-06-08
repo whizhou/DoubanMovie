@@ -40,7 +40,7 @@ def corr_analysis(data: pd.DataFrame) -> None:
     print("Correlation Analyzing...")
 
     # (1) 上映年份-影片数量
-    # corr_analyze.year_movies(data)
+    corr_analyze.year_movies(data)
 
     # (2) 类型-评分-评分人数 综合分析
     corr_analyze.types_rating_people(data)
@@ -66,8 +66,8 @@ print(data.info(verbose=False))
 pd.set_option('display.max_columns', None)  # 设置显示全部列
 print(data.head())
 
-# fund_analysis(data)
+fund_analysis(data)
 
-# corr_analysis(data)
+corr_analysis(data)
 
 adv_analysis(data)
