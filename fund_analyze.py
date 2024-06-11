@@ -20,7 +20,7 @@ def region_analyze(data: pd.DataFrame) -> None:
     print("Region Analyzing...")
 
     # 预览 data['regions'] 数据格式
-    print(data['regions'])
+    print(data['regions'].head())
 
     # 进行数据拆分和分组
     regions_list = []
@@ -36,6 +36,10 @@ def region_analyze(data: pd.DataFrame) -> None:
 
     # 查看各地区电影数量
     print(region_count)
+    print(region_count.sum())
+
+    # 创建区域绘制饼图和Pareto图
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(15, 10))
 
     """
     绘制比例饼图:
@@ -58,10 +62,14 @@ def region_analyze(data: pd.DataFrame) -> None:
     region_percent_filtered = region_percent_filtered.sort_values(ascending=False)
 
     # 绘制饼图
-    plt.figure()
-    region_percent_filtered.plot.pie(autopct='%1.1f%%', label='', startangle=90, counterclock=False)
-    plt.title('制片地区比例分布图')
-    plt.show()
+    # plt.figure()
+    # region_percent_filtered.plot.pie(autopct='%1.1f%%', label='', startangle=90, counterclock=False)
+    # plt.title('制片地区比例分布图')
+    # plt.show()
+    axes[0].pie(region_percent_filtered, autopct='%1.1f%%', startangle=90, counterclock=False,
+                labels=region_percent_filtered.index)
+    axes[0].axis('off')
+    axes[0].set_title('制片地区比例分布图', fontproperties=font_prop)
 
     """
     绘制 Pareto Chart
@@ -74,15 +82,15 @@ def region_analyze(data: pd.DataFrame) -> None:
     cumulative_percent = region_percent_sorted.cumsum().head(10)
 
     # 绘制帕累托图
-    fig, ax1 = plt.subplots()
+    # fig, ax1 = plt.subplots()
 
     # 条形图
-    bars = ax1.bar(top_regions.index, top_regions, color='C0')
-    ax1.set_ylabel('影片数量', color='C0', fontproperties=font_prop)
-    ax1.tick_params(axis='y', labelcolor='C0')
+    bars = axes[1].bar(top_regions.index, top_regions, color='C0')
+    axes[1].set_ylabel('影片数量', color='C0', fontproperties=font_prop)
+    axes[1].tick_params(axis='y', labelcolor='C0')
 
     # 显示累计百分比的次坐标轴
-    ax2 = ax1.twinx()
+    ax2 = axes[1].twinx()
     ax2.plot(top_regions.index, cumulative_percent, color='C1', marker='D', ms=7, linestyle='--')
     ax2.set_ylabel('累计百分比', color='C1', fontproperties=font_prop)
     ax2.tick_params(axis='y', labelcolor='C1')
@@ -91,13 +99,10 @@ def region_analyze(data: pd.DataFrame) -> None:
     ax2.set_ylim(0, 100)
 
     # 显示网格线
-    ax1.grid(axis='y')
-
-    # 使用 tight_layout 以防止标签被截断
-    plt.tight_layout()
+    axes[1].grid(axis='y')
 
     # 显示图表
-    plt.title('影片数量前十的地区的帕累托图', fontproperties=font_prop)
+    axes[1].set_title('影片数量前十的地区的帕累托图', fontproperties=font_prop)
     plt.show()
 
 
@@ -111,7 +116,7 @@ def type_analyze(data: pd.DataFrame) -> None:
     print("Type Analyzing...")
 
     # 预览 data['types'] 数据格式
-    print(data['types'])
+    print(data['types'].head())
 
     # 进行数据拆分和分组
     types_list = []
@@ -124,6 +129,9 @@ def type_analyze(data: pd.DataFrame) -> None:
     # 查看各类型影片数
     print(type_count)
 
+    # 创建区域绘制饼图和Pareto图
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(15, 10))
+
     """
     绘制比例饼图
     """
@@ -133,18 +141,23 @@ def type_analyze(data: pd.DataFrame) -> None:
 
     # 将占比小于阈值的数据合并为“其它”
     threshold = 2.5  # 设定阈值为 5%
-    region_percent_filtered = type_percent[type_percent >= threshold]
+    type_percent_filtered = type_percent[type_percent >= threshold]
     other_percent = type_percent[type_percent < threshold].sum()
-    region_percent_filtered['其它类型'] = other_percent
+    type_percent_filtered['其它类型'] = other_percent
 
     # 按比例排序
-    region_percent_filtered = region_percent_filtered.sort_values(ascending=False)
+    type_percent_filtered = type_percent_filtered.sort_values(ascending=False)
 
     # 绘制饼图
-    plt.figure()
-    region_percent_filtered.plot.pie(autopct='%1.1f%%', label='', startangle=90, counterclock=False)
-    plt.title('电影类型比例分布图')
-    plt.show()
+    # plt.figure()
+    # type_percent_filtered.plot.pie(autopct='%1.1f%%', label='', startangle=90, counterclock=False)
+    # plt.title('电影类型比例分布图')
+    # plt.show()
+
+    axes[0].pie(type_percent_filtered, autopct='%1.1f%%', startangle=90, counterclock=False,
+                labels=type_percent_filtered.index)
+    axes[0].axis('off')
+    axes[0].set_title('电影类型比例分布图', fontproperties=font_prop)
 
     """
     绘制 Pareto Chart
@@ -153,16 +166,13 @@ def type_analyze(data: pd.DataFrame) -> None:
     top_types = type_count.sort_values(ascending=False).head(10)
     cumulative_percent = type_percent.cumsum().head(10)
 
-    # 创建 Pareto 图绘制区
-    fig, ax1 = plt.subplots()
-
     # 条形图
-    bars = ax1.bar(top_types.index, top_types, color='C0')
-    ax1.set_ylabel('影片数量', color='C0', fontproperties=font_prop)
-    ax1.tick_params(axis='y', labelcolor='C0')
+    bars = axes[1].bar(top_types.index, top_types, color='C0')
+    axes[1].set_ylabel('影片数量', color='C0', fontproperties=font_prop)
+    axes[1].tick_params(axis='y', labelcolor='C0')
 
     # 显示累计百分比的次坐标轴
-    ax2 = ax1.twinx()
+    ax2 = axes[1].twinx()
     ax2.plot(top_types.index, cumulative_percent, color='C1', marker='D', ms=7, linestyle='--')
     ax2.set_ylabel('累计百分比', color='C1', fontproperties=font_prop)
     ax2.tick_params(axis='y', labelcolor='C1')
@@ -171,13 +181,10 @@ def type_analyze(data: pd.DataFrame) -> None:
     ax2.set_ylim(0, 100)
 
     # 显示网格线
-    ax1.grid(axis='y')
-
-    # 使用 tight_layout 以防止标签被截断
-    plt.tight_layout()
+    axes[1].grid(axis='y')
 
     # 显示图表
-    plt.title('影片数量前十的类型的帕累托图', fontproperties=font_prop)
+    axes[1].set_title('影片数量前十的类型的帕累托图', fontproperties=font_prop)
     plt.show()
 
 
@@ -191,7 +198,7 @@ def director_analyze(data: pd.DataFrame) -> None:
     print("Director Analyzing...")
 
     # 预览数据格式
-    print(data['director'])
+    print(data['director'].head())
 
     """
     统计影片数量前10的导演及其影片和影片评分

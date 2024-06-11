@@ -3,6 +3,7 @@ import pandas as pd
 import networkx as nx
 from matplotlib import pyplot as plt
 import matplotlib.font_manager as fm
+import matplotlib.patches as patches
 import wordcloud as wc
 import jieba
 
@@ -41,19 +42,23 @@ def collaboration(data: pd.DataFrame):
     G = nx.DiGraph()
 
     # 添加节点和边
-    for _, row in director_writer_sorted.head(10).iterrows():
+    for _, row in director_writer_sorted.head(20).iterrows():
         G.add_edge(row['director'], row['writer'], weight=row['count'])
 
     # 设置节点布局
-    pos = nx.spring_layout(G)
+    pos = nx.spring_layout(G, k=5, iterations=500)  # 调整参数以优化显示效果
 
-    # 绘制网络图
-    plt.figure()
+    fig, ax = plt.subplots(figsize=(8, 8))
 
-    # 根据权重绘制边
+    # 绘制自环
     edges = G.edges(data=True)
-    for u, v, d in edges:
-        nx.draw_networkx_edges(G, pos, edgelist=[(u, v)], width=d['weight'], alpha=0.6)
+    nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in edges if u == v],
+                           width=[d['weight'] * 2 for u, v, d in edges if u == v], alpha=0.6,
+                           connectionstyle='arc3,rad=0.5')
+
+    # 绘制其他边
+    nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in edges if u != v],
+                           width=[d['weight'] * 2 for u, v, d in edges if u != v], alpha=0.6)
 
     # 添加边权重标签
     edge_labels = {(u, v): d['weight'] for u, v, d in edges}
@@ -63,7 +68,7 @@ def collaboration(data: pd.DataFrame):
     nx.draw_networkx_nodes(G, pos, node_size=1500, node_color='skyblue')
     nx.draw_networkx_labels(G, pos, font_size=10, font_weight='bold')
 
-    # 显示图标
+    # 显示图表
     plt.title("导演-编剧合作关系网络图")
     plt.axis('off')
     plt.show()
@@ -80,25 +85,29 @@ def collaboration(data: pd.DataFrame):
     # 统计导演-编剧合作次数
     director_actor_count = director_actor_df.groupby(['director', 'actor']).size().reset_index(name='count')
     director_actor_sorted = director_actor_count.sort_values(by='count', ascending=False)
-    print(director_actor_sorted.head(15))
+    print(director_actor_sorted.head(20))
 
     # 创建有向图
     G = nx.DiGraph()
 
     # 添加节点和边
-    for _, row in director_actor_sorted.head(10).iterrows():
+    for _, row in director_actor_sorted.head(20).iterrows():
         G.add_edge(row['director'], row['actor'], weight=row['count'])
 
     # 设置节点布局
-    pos = nx.spring_layout(G)
+    pos = nx.spring_layout(G, k=5, iterations=500)  # 调整参数以优化显示效果
 
-    # 绘制网络图
-    plt.figure()
+    fig, ax = plt.subplots(figsize=(8, 8))
 
-    # 根据权重绘制边
+    # 绘制自环
     edges = G.edges(data=True)
-    for u, v, d in edges:
-        nx.draw_networkx_edges(G, pos, edgelist=[(u, v)], width=d['weight'], alpha=0.6, arrows=True, arrowsize=30)
+    nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in edges if u == v],
+                           width=[d['weight'] * 2 for u, v, d in edges if u == v], alpha=0.6,
+                           connectionstyle='arc3,rad=0.5')
+
+    # 绘制其他边
+    nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in edges if u != v],
+                           width=[d['weight'] * 2 for u, v, d in edges if u != v], alpha=0.6)
 
     # 添加边权重标签
     edge_labels = {(u, v): d['weight'] for u, v, d in edges}
@@ -108,7 +117,7 @@ def collaboration(data: pd.DataFrame):
     nx.draw_networkx_nodes(G, pos, node_size=1500, node_color='skyblue')
     nx.draw_networkx_labels(G, pos, font_size=10, font_weight='bold')
 
-    # 显示图标
+    # 显示图表
     plt.title("导演-演员合作关系网络图")
     plt.axis('off')
     plt.show()

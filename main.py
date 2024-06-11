@@ -72,6 +72,6 @@ print(data.head())
 
 fund_analysis(data)
 
-# corr_analysis(data)
+corr_analysis(data)
 
-# adv_analysis(data)
+adv_analysis(data)
